@@ -11,5 +11,5 @@ runs:
     - name: Push Docker image to Docker Hub
       run: |
         echo "Pushing Docker image..."
-        docker build -t radud1337/python-greetings-app:latest .        docker push radud1337/python-greetings-app:latest
+        docker push radud1337/python-greetings-app:latest
       shell: bash
