@@ -1,0 +1,110 @@
+name: Build and Test Python Microservice pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-docker-image:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          echo "Building Docker image..."
+          docker build -t radud1337/python-greetings-app:latest .
+          docker push radud1337/python-greetings-app:latest
+
+  deploy-to-dev:
+    runs-on: self-hosted
+    needs: build-docker-image
+    env:
+      ENV_NAME: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to DEV Environment
+        run: |
+          echo "Deploying to DEV environment..."
+          docker pull radud1337/python-greetings-app:latest
+          docker-compose stop greetings-app-${ENV_NAME}
+          docker-compose rm -f greetings-app-${ENV_NAME}
+          docker-compose up -d greetings-app-${ENV_NAME}
+
+  tests-on-dev:
+    runs-on: self-hosted
+    needs: deploy-to-dev
+    env:
+      ENV_NAME: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Tests on DEV Environment
+        run: |
+          echo "Running tests on DEV environment..."
+          docker pull radud1337/api-tests:latest
+          docker run --network=host --rm radud1337/api-tests:latest run greetings greetings_${ENV_NAME}
+
+  deploy-to-stg:
+    runs-on: self-hosted
+    needs: tests-on-dev
+    env:
+      ENV_NAME: stg
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to STG Environment
+        run: |
+          echo "Deploying to STG environment..."
+          docker pull radud1337/python-greetings-app:latest
+          docker-compose stop greetings-app-${ENV_NAME}
+          docker-compose rm -f greetings-app-${ENV_NAME}
+          docker-compose up -d greetings-app-${ENV_NAME}
+
+  tests-on-stg:
+    runs-on: self-hosted
+    needs: deploy-to-stg
+    env:
+      ENV_NAME: stg
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Tests on STG Environment
+        run: |
+          echo "Running tests on STG environment..."
+          docker pull radud1337/api-tests:latest
+          docker run --network=host --rm radud1337/api-tests:latest run greetings greetings_${ENV_NAME}
+
+  deploy-to-prod:
+    runs-on: self-hosted
+    needs: tests-on-stg
+    env:
+      ENV_NAME: prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to PROD Environment
+        run: |
+          echo "Deploying to PROD environment..."
+          docker pull radud1337/python-greetings-app:latest
+          docker-compose stop greetings-app-${ENV_NAME}
+          docker-compose rm -f greetings-app-${ENV_NAME} 
+          docker-compose up -d greetings-app-${ENV_NAME}
+
+  tests-on-prod:
+    runs-on: self-hosted
+    needs: deploy-to-prod
+    env:
+      ENV_NAME: prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Tests on PROD Environment
+        run: |
+          echo "Running tests on PROD environment..."
+          docker pull radud1337/api-tests:latest
+          docker run --network=host --rm radud1337/api-tests:latest run greetings greetings_${ENV_NAME}
