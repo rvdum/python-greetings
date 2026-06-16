@@ -15,18 +15,11 @@ jobs:
   deploy-to-dev:
     runs-on: self-hosted
     needs: build-docker-image
-    env:
-      ENV_NAME: dev
     steps:
       - uses: actions/checkout@v4
-
-      - name: Deploy to DEV Environment
-        run: |
-          echo "Deploying to DEV environment..."
-          docker pull radud1337/python-greetings-app:latest
-          docker-compose stop greetings-app-${ENV_NAME}
-          docker-compose rm -f greetings-app-${ENV_NAME}
-          docker-compose up -d greetings-app-${ENV_NAME}
+      - uses: ./.github/actions/deploy
+        with:
+          ENV_NAME: "dev"
 
   tests-on-dev:
     runs-on: self-hosted
@@ -45,18 +38,11 @@ jobs:
   deploy-to-stg:
     runs-on: self-hosted
     needs: tests-on-dev
-    env:
-      ENV_NAME: stg
     steps:
       - uses: actions/checkout@v4
-
-      - name: Deploy to STG Environment
-        run: |
-          echo "Deploying to STG environment..."
-          docker pull radud1337/python-greetings-app:latest
-          docker-compose stop greetings-app-${ENV_NAME}
-          docker-compose rm -f greetings-app-${ENV_NAME}
-          docker-compose up -d greetings-app-${ENV_NAME}
+      - uses: ./.github/actions/deploy
+        with:
+          ENV_NAME: "stg"
 
   tests-on-stg:
     runs-on: self-hosted
@@ -75,18 +61,11 @@ jobs:
   deploy-to-prod:
     runs-on: self-hosted
     needs: tests-on-stg
-    env:
-      ENV_NAME: prod
     steps:
       - uses: actions/checkout@v4
-
-      - name: Deploy to PROD Environment
-        run: |
-          echo "Deploying to PROD environment..."
-          docker pull radud1337/python-greetings-app:latest
-          docker-compose stop greetings-app-${ENV_NAME}
-          docker-compose rm -f greetings-app-${ENV_NAME} 
-          docker-compose up -d greetings-app-${ENV_NAME}
+      - uses: ./.github/actions/deploy
+        with:
+          ENV_NAME: "prod"
 
   tests-on-prod:
     runs-on: self-hosted
