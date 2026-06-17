@@ -1,15 +1,21 @@
-name: "Build and push Docker image"
+name: "Deploy Python Greetings App"
 description: "Composite action to build and push Docker image to Docker Hub"
+inputs:
+  ENV_NAME:
+    description: "The target environment for deployment"
+    required: true
 runs:
   using: "composite"
   steps:
-    - name: Build Docker image for Python Greetings App
-      run: |
-        echo "Building Docker image..."
-        docker build -t radud1337/python-greetings-app:latest .
+    - name: Pull latest Docker image for Python Greetings App
+      run: docker pull radud1337/python-greetings-app:latest
       shell: bash
-    - name: Push Docker image to Docker Hub
-      run: |
-        echo "Pushing Docker image..."
-        docker push radud1337/python-greetings-app:latest
+    - name: Stop Service Container
+      run: docker-compose stop greetings-app-${{ inputs.ENV_NAME }}
+      shell: bash
+    - name: Remove Service Container
+      run: docker-compose rm -f greetings-app-${{ inputs.ENV_NAME }}
+      shell: bash
+    - name: Start Service Container
+      run: docker-compose up -d greetings-app-${{ inputs.ENV_NAME }}
       shell: bash

@@ -4,12 +4,8 @@ runs:
   using: "composite"
   steps:
     - name: Build Docker image for Python Greetings App
-      run: |
-        echo "Building Docker image..."
-        docker build -t radud1337/python-greetings-app:latest .
+      run: docker build -t radud1337/python-greetings-app:latest .
       shell: bash
     - name: Push Docker image to Docker Hub
-      run: |
-        echo "Pushing Docker image..."
-        docker push radud1337/python-greetings-app:latest
+      run: docker push radud1337/python-greetings-app:latest
       shell: bash
