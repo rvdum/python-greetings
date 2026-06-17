@@ -1,5 +1,5 @@
 name: "Deploy Python Greetings App"
-description: "Composite action to build and push Docker image to Docker Hub"
+description: "Composite action to deploy the Python Greetings App"
 inputs:
   ENV_NAME:
     description: "The target environment for deployment"

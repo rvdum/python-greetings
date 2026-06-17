@@ -1,15 +1,15 @@
-name: "Build and push Docker image"
-description: "Composite action to build and push Docker image to Docker Hub"
+name: "Execute API Tests for Python Greetings App"
+description: "Composite action to execute API tests for the Python Greetings App"
+inputs:
+  ENV_NAME:
+    description: "The target environment for deployment"
+    required: true
 runs:
   using: "composite"
   steps:
-    - name: Build Docker image for Python Greetings App
-      run: |
-        echo "Building Docker image..."
-        docker build -t radud1337/python-greetings-app:latest .
+    - name: Pull latest Docker image for API Tests
+      run: docker pull radud1337/api-tests:latest
       shell: bash
-    - name: Push Docker image to Docker Hub
-      run: |
-        echo "Pushing Docker image..."
-        docker push radud1337/python-greetings-app:latest
+    - name: Run API Tests for Python Greetings App
+      run: docker run --network=host --rm radud1337/api-tests:latest run greetings greetings_${ENV_NAME}
       shell: bash
