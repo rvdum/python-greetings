@@ -11,5 +11,5 @@ runs:
       run: docker pull radud1337/api-tests:latest
       shell: bash
     - name: Run API Tests for Python Greetings App
-      run: docker run --network=host --rm radud1337/api-tests:latest run greetings greetings_${ENV_NAME}
+      run: docker run --network=host --rm radud1337/api-tests:latest run greetings greetings_${{ inputs.ENV_NAME }}
       shell: bash
